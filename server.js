@@ -1,6 +1,7 @@
 // server.js - Starter Express server for Week 2 assignment
 
 // Import required modules
+require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const { v4: uuidv4 } = require('uuid');
@@ -11,6 +12,16 @@ const PORT = process.env.PORT || 3000;
 
 // Middleware setup
 app.use(bodyParser.json());
+
+
+// Import middleware
+const logger = require('./middleware/logger');
+const auth = require('./middleware/auth');
+const errorHandler = require('./middleware/errorHandler');
+
+
+// Import routes
+const productRoutes = require('./routes/products');
 
 // Sample in-memory products database
 let products = [
@@ -45,6 +56,11 @@ app.get('/', (req, res) => {
   res.send('Welcome to the Product API! Go to /api/products to see all products.');
 });
 
+// Product routes (protected by authentication)
+app.use('/api/products', auth, productRoutes);
+
+// Global error handler
+app.use(errorHandler);
 // TODO: Implement the following routes:
 // GET /api/products - Get all products
 // GET /api/products/:id - Get a specific product
